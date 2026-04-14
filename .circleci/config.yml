@@ -330,17 +330,17 @@ workflows:
       - build:
           filters:
             branches:
-              only: feature/go-applicatio
+              only: feature/go-application
 
       - static-analysis:
           filters:
             branches:
-              only: feature/go-applicatio
+              only: feature/go-application
 
       - docker-file-linting:
           filters:
             branches:
-              only: feature/go-applicatio
+              only: feature/go-application
 
       - docker-build-and-push:
           requires: [build, static-analysis, docker-file-linting]
