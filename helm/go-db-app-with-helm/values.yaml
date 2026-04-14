@@ -1,0 +1,91 @@
+# go-db application yaml details
+replicaCount: 1
+
+image:
+  repository: anuroop21/go-db-application
+  tag: v4
+  pullPolicy: Always
+
+labels:
+  app: go-db
+
+annotations:
+  prometheus:
+    scrape: "true"
+    path: "/metrics"
+    port: "8080"
+
+rollout:
+  progressDeadlineSeconds: 60
+  strategy:
+    maxSurge: 25%
+    maxUnavailable: 25%
+
+service:
+  port: 8080
+
+postgres:
+  host: postgres-db-service
+  port: "5432"
+  user: postgres
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 50Mi
+  limits:
+    cpu: 100m
+    memory: 100Mi
+
+probes:
+  startup:
+    path: /healthz
+    failureThreshold: 30
+    periodSeconds: 10
+
+  readiness:
+    path: /ready
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 3
+
+  liveness:
+    path: /healthz
+    periodSeconds: 20
+    failureThreshold: 3
+
+
+# postgres-deployment details
+postgresql:
+
+  name: postgres
+  image: postgres:17-alpine
+  replicas: 1
+  
+  service:
+    name: postgres-db-service
+    port: 5432
+
+  storage:
+    pvcName: postgres-db-pvc
+    size: 5Gi
+    accessMode: ReadWriteOnce
+
+  credentials:
+    usernameSecret:
+      name: postgres-db-secret
+      key: postgres_user
+
+    passwordSecret:
+      name: postgres-db-secret
+      key: postgres_password
+
+  database:
+    name: mydb
+    credentials:
+      username: postgres
+      password: mysecretpassword
+    
+    
+    
